@@ -392,35 +392,13 @@ function ma_custom_admin_menu() {
 function ma_options_page() {
 
   global $m;
-    ?>
-    
+  
+  include 'settings.php';
 
-<h2>Monitor Adblock</h2>
-
-<div class="wrap">
-
-      <form action="" method="post" enctype="multipart/form-data">
-
-      Your Message: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="text" name="adblock_message" value="<?php echo $m;?>"><br><br>
-
-       Image displayed: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="adblock_image">
-
-       <br><br><input type="submit" name="save_image" class="button-primary" value="upload">
-       </form>
-
-
-       
-      
-    </div>
-
-    
-
-    <?php
 }
 add_action( 'admin_menu', 'ma_custom_admin_menu' );
 
-function plugin_row_meta( $links, $file ) {
+function mn_plugin_row_meta( $links, $file ) {
 
     if (strpos( $file,'monitoradblock.php') !== false ) {
         $new_links = array('<a href="mailto:support@vnative.com">Support</a>');
@@ -430,7 +408,7 @@ function plugin_row_meta( $links, $file ) {
     return $links;
 }
 
-add_filter('plugin_row_meta', 'plugin_row_meta', 10, 2 );
+add_filter('plugin_row_meta', 'mn_plugin_row_meta', 10, 2 );
 
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'add_action_links' );
 
