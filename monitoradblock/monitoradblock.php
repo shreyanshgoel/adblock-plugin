@@ -39,14 +39,14 @@ function myplugin_footer_function() {
 #rba2{position:fixed !important;position:absolute;top:0px;top:expression((t=document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop)+'px');left:0px;width:100%;height:100%;background-color:#fff;opacity:.95;filter:alpha(opacity=95);display:block;padding:13% 0}#rba2 {text-align:center;margin:0 auto;display:block;filter:none;font:bold 14px Verdana,Arial,sans-serif;text-decoration:none}#rba2 ~ {display:none}
 </style>
 
-<span id='blue_screen' style='display:none'><font id='rba2'><b>Please disable adblock to visit our website, this help us to pay hosting bill.</b><br><br>";
+<span id='blue_screen' style='display:none'><font id='rba2' style='z-index:2000'><b>Please disable adblock to visit our website, this help us to pay hosting bill.</b><br><br>";
 
       if(!empty($ext)){
 
           echo "<img src='" . $upload_dir['baseurl'] . "wp-content/uploads/adblock_image." . $ext . "'>";
         }else{
 
-          echo "<img src='" . $url . "MonitorAdblock/adblock.png'>";
+          echo "<img src='" . $url . "monitoradblock/adblock.png'>";
         }
 
 echo "</font></span>
