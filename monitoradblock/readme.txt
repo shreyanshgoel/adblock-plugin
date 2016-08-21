@@ -1,0 +1,1 @@
+This plugin is made to detect adblockers percentage on google analytics and to block users who have enabled adblock.
