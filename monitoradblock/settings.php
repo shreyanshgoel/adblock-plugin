@@ -1,6 +1,7 @@
 <h2>Monitor Adblock</h2>
 <div class="wrap">
     <form action="" method="post" enctype="multipart/form-data">
+    <?php settings_fields('adblock_options')?>
         Your Message: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input type="text" name="adblock_message" style="width:300px" value="<?php echo $m;?>">
         <br>

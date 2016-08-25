@@ -8,9 +8,10 @@
  *Author URI: http://vnative.com
 */
 
+
 $upload_dir = wp_upload_dir();
 
-$url = plugin_dir_url( $file );
+$url = plugins_url( 'adblock.png', __FILE__ );
 
 $m = get_option('adblock_message');
 
@@ -20,7 +21,7 @@ $m = get_option('adblock_message');
     }
 
 
-function myplugin_footer_function() {
+function easy_ma_footer_function() {
     
     global $url;
 
@@ -46,7 +47,7 @@ function myplugin_footer_function() {
           echo "<img src='" . $upload_dir['baseurl'] . "wp-content/uploads/adblock_image." . $ext . "'>";
         }else{
 
-          echo "<img src='" . $url . "monitoradblock/adblock.png'>";
+          echo "<img src='" . $url . "''>";
         }
 
 echo "</font></span>
@@ -75,14 +76,25 @@ e.blockAdBlock&&(e.blockAdBlock=new d({checkOnLoad:!0,resetOnEnd:!0}))})(window)
 <!--Monitor Adblock Plugin-->";
 
 }
-add_action( 'wp_footer', 'myplugin_footer_function' );
- 
+add_action( 'wp_footer', 'easy_ma_footer_function' );
+
+
+add_action('admin_init', 'easy_ma_register_my_setting');
+
+function easy_ma_register_my_setting(){
+
+  register_setting('adblock_options', 'adblock_message');
+  register_setting('adblock_options', 'adblock_image_ext');
+}
+
 add_option('adblock_message');
 add_option('adblock_image_ext');
 
 if(isset($_POST['save_image'])){
 
-  update_option('adblock_message', $_POST['adblock_message']);
+  $message = sanitize_text_field($_POST['adblock_message']);
+
+  update_option('adblock_message', $message);
 
   if(!empty($_FILES['adblock_image']['name'])){
   
@@ -104,26 +116,26 @@ if(isset($_POST['save_image'])){
   
 }
 
-function ma_custom_admin_menu() {
+function easy_ma_custom_admin_menu() {
     add_options_page(
         'Monitor Adblock',
         'Monitor Adblock',
         'manage_options',
         'monitoradblock',
-        'ma_options_page'
+        'easy_ma_options_page'
     );
 }
 
-function ma_options_page() {
+function easy_ma_options_page() {
 
   global $m;
   
   include 'settings.php';
 
 }
-add_action( 'admin_menu', 'ma_custom_admin_menu' );
+add_action( 'admin_menu', 'easy_ma_custom_admin_menu' );
 
-function mn_plugin_row_meta( $links, $file ) {
+function easy_ma_plugin_row_meta( $links, $file ) {
 
     if (strpos( $file,'monitoradblock.php') !== false ) {
         $new_links = array('<a href="mailto:support@vnative.com">Support</a>');
@@ -133,11 +145,11 @@ function mn_plugin_row_meta( $links, $file ) {
     return $links;
 }
 
-add_filter('plugin_row_meta', 'mn_plugin_row_meta', 10, 2 );
+add_filter('plugin_row_meta', 'easy_ma_plugin_row_meta', 10, 2 );
 
-add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'add_action_links' );
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'easy_ma_add_action_links' );
 
-function add_action_links ( $links ) {
+function easy_ma_add_action_links ( $links ) {
  $mylinks = array(
  '<a href="options-general.php?page=monitoradblock">Settings</a>',
  );
