@@ -8,6 +8,7 @@
  *Author URI: http://vnative.com
 */
 
+require_once(ABSPATH .'wp-includes/pluggable.php');
 
 $upload_dir = wp_upload_dir();
 
@@ -23,7 +24,7 @@ $m = get_option('adblock_message');
 
 function easy_ma_footer_function() {
     
-    global $url;
+    global $url, $upload_dir;
 
     $m = get_option('adblock_message');
 
@@ -44,7 +45,7 @@ function easy_ma_footer_function() {
 
       if(!empty($ext)){
 
-          echo "<img src='" . $upload_dir['baseurl'] . "wp-content/uploads/adblock_image." . $ext . "'>";
+          echo "<img src='" . $upload_dir['baseurl'] . "/adblock_image." . $ext . "'>";
         }else{
 
           echo "<img src='" . $url . "''>";
@@ -78,40 +79,36 @@ e.blockAdBlock&&(e.blockAdBlock=new d({checkOnLoad:!0,resetOnEnd:!0}))})(window)
 }
 add_action( 'wp_footer', 'easy_ma_footer_function' );
 
-
-add_action('admin_init', 'easy_ma_register_my_setting');
-
-function easy_ma_register_my_setting(){
-
-  register_setting('adblock_options', 'adblock_message');
-  register_setting('adblock_options', 'adblock_image_ext');
-}
-
 add_option('adblock_message');
 add_option('adblock_image_ext');
 
 if(isset($_POST['save_image'])){
 
-  $message = sanitize_text_field($_POST['adblock_message']);
+  if(wp_verify_nonce($_POST['adblock_nonce'], 'adblock_nonce')){
 
-  update_option('adblock_message', $message);
+    if(current_user_can('administrator')){
 
-  if(!empty($_FILES['adblock_image']['name'])){
-  
-    $check = getimagesize($_FILES["adblock_image"]["tmp_name"]);
+    $message = sanitize_text_field($_POST['adblock_message']);
 
-    if($check !== false) {
-        
-        $imageFileType = pathinfo($_FILES['adblock_image']['name'],PATHINFO_EXTENSION);
+    update_option('adblock_message', $message);
 
-        move_uploaded_file($_FILES["adblock_image"]["tmp_name"], ABSPATH . 'wp-content/uploads/adblock_image.' . $imageFileType);
+    if(!empty($_FILES['adblock_image']['name'])){
+    
+      $check = getimagesize($_FILES["adblock_image"]["tmp_name"]);
 
-        update_option('adblock_image_ext', $imageFileType);
+      if($check !== false) {
+          
+          $imageFileType = pathinfo($_FILES['adblock_image']['name'],PATHINFO_EXTENSION);
+
+          move_uploaded_file($_FILES["adblock_image"]["tmp_name"], $upload_dir['basedir'] . '/adblock_image.' . $imageFileType);
+
+          update_option('adblock_image_ext', $imageFileType);
+      }
     }
+
+    header("Location: options-general.php?page=monitoradblock&updated=true");
   }
-
-  header("Location: options-general.php?page=monitoradblock&updated=true");
-
+  }
 
   
 }
