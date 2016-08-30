@@ -82,32 +82,54 @@ add_action( 'wp_footer', 'easy_ma_footer_function' );
 add_option('adblock_message');
 add_option('adblock_image_ext');
 
+function wpse_141088_upload_dir( $dir ) {
+    return array(
+        'path'   => $dir['basedir'] . '/',
+        'url'    => $dir['baseurl'] . '/',
+        'subdir' => '/',
+    ) + $dir;
+}
+
 if(isset($_POST['save_image'])){
 
   if(wp_verify_nonce($_POST['adblock_nonce'], 'adblock_nonce')){
 
     if(current_user_can('administrator')){
 
-    $message = sanitize_text_field($_POST['adblock_message']);
+      $message = sanitize_text_field($_POST['adblock_message']);
 
-    update_option('adblock_message', $message);
+      update_option('adblock_message', $message);
 
-    if(!empty($_FILES['adblock_image']['name'])){
-    
-      $check = getimagesize($_FILES["adblock_image"]["tmp_name"]);
+      require_once( ABSPATH . 'wp-admin/includes/image.php' );
+      require_once( ABSPATH . 'wp-admin/includes/file.php' );
+      require_once( ABSPATH . 'wp-admin/includes/media.php' );
 
-      if($check !== false) {
-          
-          $imageFileType = pathinfo($_FILES['adblock_image']['name'],PATHINFO_EXTENSION);
+      $file = $_FILES['adblock_image'];
 
-          move_uploaded_file($_FILES["adblock_image"]["tmp_name"], $upload_dir['basedir'] . '/adblock_image.' . $imageFileType);
+      $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 
-          update_option('adblock_image_ext', $imageFileType);
+      $file['name'] = 'adblock_image.' . $ext;
+
+      update_option('adblock_image_ext', $ext);
+
+      add_filter( 'upload_dir', 'wpse_141088_upload_dir' );
+
+      @unlink($upload_dir['basedir'] . '/adblock_image.jpg');
+      // Let WordPress handle the upload.
+      // Remember, 'my_image_upload' is the name of our file input in our form above.
+      $movefile = wp_handle_upload( $file , array( 'test_form' => false, 'test_type' => false ));
+      
+      if ( $movefile && ! isset( $movefile['error'] ) ) {
+
+      } else {
+
       }
-    }
 
-    header("Location: options-general.php?page=monitoradblock&updated=true");
-  }
+      remove_filter( 'upload_dir', 'wpse_141088_upload_dir' );
+
+
+
+    }
   }
 
   
