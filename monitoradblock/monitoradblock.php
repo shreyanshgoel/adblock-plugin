@@ -8,23 +8,19 @@
  *Author URI: http://vnative.com
 */
 
-require_once(ABSPATH .'wp-includes/pluggable.php');
-
-$upload_dir = wp_upload_dir();
-
-$url = plugins_url( 'adblock.png', __FILE__ );
 
 $m = get_option('adblock_message');
 
-    if(empty($m)){
+if(empty($m)){
 
-      $m = 'Please Disable Your adblocker to view this site.';
-    }
+  $m = 'Please Disable Your adblocker to view this site.';
+
+}
+
+$image = get_option('adblock_image_url');
 
 
 function easy_ma_footer_function() {
-    
-    global $url, $upload_dir;
 
     $m = get_option('adblock_message');
 
@@ -33,7 +29,13 @@ function easy_ma_footer_function() {
       $m = 'Please Disable Your adblocker to view this site.';
     }
 
-    $ext = get_option('adblock_image_ext');
+    $url = get_option('adblock_image_url');
+
+    if(empty($url)){
+
+      $url = plugins_url( 'adblock.png', __FILE__ );
+
+    }
 
     echo "
     <!--Monitor Adblock Plugin-->
@@ -43,13 +45,8 @@ function easy_ma_footer_function() {
 
 <span id='blue_screen' style='display:none'><font id='rba2' style='z-index:2000'><b>Please disable adblock to visit our website, this help us to pay hosting bill.</b><br><br>";
 
-      if(!empty($ext)){
+          echo "<img src='" . $url . "'>";
 
-          echo "<img src='" . $upload_dir['baseurl'] . "/adblock_image." . $ext . "'>";
-        }else{
-
-          echo "<img src='" . $url . "''>";
-        }
 
 echo "</font></span>
 
@@ -80,59 +77,14 @@ e.blockAdBlock&&(e.blockAdBlock=new d({checkOnLoad:!0,resetOnEnd:!0}))})(window)
 add_action( 'wp_footer', 'easy_ma_footer_function' );
 
 add_option('adblock_message');
-add_option('adblock_image_ext');
+add_option('adblock_image_url');
 
-function wpse_141088_upload_dir( $dir ) {
-    return array(
-        'path'   => $dir['basedir'] . '/',
-        'url'    => $dir['baseurl'] . '/',
-        'subdir' => '/',
-    ) + $dir;
-}
+add_action('admin_init', 'easy_ma_register_my_setting');
 
-if(isset($_POST['save_image'])){
+function easy_ma_register_my_setting(){
 
-  if(wp_verify_nonce($_POST['adblock_nonce'], 'adblock_nonce')){
-
-    if(current_user_can('administrator')){
-
-      $message = sanitize_text_field($_POST['adblock_message']);
-
-      update_option('adblock_message', $message);
-
-      require_once( ABSPATH . 'wp-admin/includes/image.php' );
-      require_once( ABSPATH . 'wp-admin/includes/file.php' );
-      require_once( ABSPATH . 'wp-admin/includes/media.php' );
-
-      $file = $_FILES['adblock_image'];
-
-      $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-
-      $file['name'] = 'adblock_image.' . $ext;
-
-      update_option('adblock_image_ext', $ext);
-
-      add_filter( 'upload_dir', 'wpse_141088_upload_dir' );
-
-      @unlink($upload_dir['basedir'] . '/adblock_image.jpg');
-      // Let WordPress handle the upload.
-      // Remember, 'my_image_upload' is the name of our file input in our form above.
-      $movefile = wp_handle_upload( $file , array( 'test_form' => false, 'test_type' => false ));
-      
-      if ( $movefile && ! isset( $movefile['error'] ) ) {
-
-      } else {
-
-      }
-
-      remove_filter( 'upload_dir', 'wpse_141088_upload_dir' );
-
-
-
-    }
-  }
-
-  
+  register_setting('adblock_options', 'adblock_message');
+  register_setting('adblock_options', 'adblock_image_url');
 }
 
 function easy_ma_custom_admin_menu() {
@@ -147,7 +99,7 @@ function easy_ma_custom_admin_menu() {
 
 function easy_ma_options_page() {
 
-  global $m;
+  global $m, $image;
   
   include 'settings.php';
 
